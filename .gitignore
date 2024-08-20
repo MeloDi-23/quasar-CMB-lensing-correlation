@@ -1,0 +1,8 @@
+calculation_data/*
+data/*
+.ipynb_checkpoints/*
+jupyter/.ipynb_checkpoints/*
+log*
+pid*
+catalogue/*
+result/*
