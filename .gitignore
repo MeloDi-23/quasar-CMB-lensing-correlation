@@ -5,4 +5,4 @@ jupyter/.ipynb_checkpoints/*
 log*
 pid*
 catalogue/*
-result/*
+results/*
