@@ -10,11 +10,23 @@ from astropy.cosmology import Planck18 as cosmos
 import astropy.coordinates as coo
 # from sklearn.neighbors import BallTree
 h = cosmos.H0.to(u.km/u.s/u.Mpc).value / 100
-
+import argparse
 """
 Use BallTree to calculate the result, prove to be consistent with hp.query, but seems faster.
 """
+### ========================================================== ###
+parser = argparse.ArgumentParser('kappa stacking (balltree)')
+parser.add_argument('file', help='input file [path relative to ./catalogue]')
+parser.add_argument('--sep_min', '-m', default=3, type=float, help='min seperation [cMpc/h]')
+parser.add_argument('--sep_max', '-M', default=100, type=float, help='max seperation [cMpc/h]')
+parser.add_argument('--nbins', '-n', default=10, type=int, help='number of bins')
+parser.add_argument('--name', help='output name')
+arg = parser.parse_args()
 
+if not arg.name:
+    import os
+    file_name = os.path.split(arg.file)[1]
+    arg.name = os.path.splitext(file_name)[0]
 ### ========================================================== ###
 
 # load the Planck kappa map
@@ -38,7 +50,7 @@ print('finish loading Planck kappa map.')
 
 ### ========================================================== ###
 
-cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_random.npy')
+cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/'+arg.file)
 Nquas = len(cmass)
 c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
 
@@ -51,22 +63,14 @@ z_l = cmass['z']
 # redshift of each quasar
 print('finish loading catalogue')
 
-# theta, phi = np.loadtxt('./catalogue/random_sample_theta_phi_5_000_000').T
-# l = phi
-# b = np.pi/2-theta
-# w_l = np.ones_like(l)
-# z_l = np.ones_like(l)*0.55
-# Nquas = len(l)
-
 ### ========================================================== ###
-
 
 Npro = 60
 Njack = 100
-Nbins = 15
-sep_min = 0.5
-sep_max = 100
-name = 'cmass_random'
+Nbins = arg.nbins
+sep_min = arg.sep_min
+sep_max = arg.sep_max
+name = arg.name
 r_bins = np.geomspace(sep_min, sep_max, Nbins+1)        # unit: cMpc/h
 
 sigma_frac = (const.c*const.c/(4*np.pi*const.G)).to(u.Msun*u.Mpc/u.pc/u.pc).value / h
@@ -154,4 +158,7 @@ assert values.shape==weight.shape==(Nquas, Nbins)
 print('finish calculating')
 print('completeness: {}'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
-np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_tree.npy', (values, weight))
+output = f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_tree.npy'
+print(f'save to {output}...')
+np.save(output, (values, weight))
+

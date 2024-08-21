@@ -12,54 +12,46 @@ import astropy.coordinates as coo
 h = cosmos.H0.to(u.km/u.s/u.Mpc).value / 100
 
 """
-Use BallTree to calculate the result, prove to be consistent with hp.query, but seems faster.
+Null Test: use the shuffled CMB kappa map(generated from read_planck.ipynb)
 """
 
 ### ========================================================== ###
 
-# load the Planck kappa map
-Nside = 1024
-mask = hp.read_map('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/mask/mask.fits')
-dat = hp.read_alm('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/MV/dat_klm.fits')
-
-image = hp.sphtfunc.alm2map(dat, nside=Nside, pol=False)
-mask = hp.ud_grade(mask, Nside)
-image_masked = hp.ma(image)
-image_masked.mask = mask<=0.5
-theta, phi = hp.pix2ang(Nside, np.arange(len(image)))
-l_k = phi[np.logical_not(image_masked.mask)]
-b_k = np.pi/2 - theta[np.logical_not(image_masked.mask)]
-kappa = image[np.logical_not(image_masked.mask)]
-
+l_k, b_k, kappa = np.load('./catalogue/CMB_shuffle_v2.npy')
 from sklearn.neighbors import BallTree
 tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
 
-print('finish loading Planck kappa map.')
+print('finish loading shuffled Planck kappa map.')
 
 ### ========================================================== ###
 
+# cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_z_cut.npy')
+# Nquas = len(cmass)
+# c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
+
+# l = c.galactic.l.to(u.rad).value
+# b = c.galactic.b.to(u.rad).value
+# w_l = cmass['w']
+# z_l = cmass['z']
+# print('finish loading catalogue')
+
+### ========================================================== ###
+# random point sample
 cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_random.npy')
+
 Nquas = len(cmass)
+
 c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
 
 l = c.galactic.l.to(u.rad).value
 b = c.galactic.b.to(u.rad).value
-# position of each quasar
-w_l = cmass['w']
-# weighting of each quasar
-z_l = cmass['z']
-# redshift of each quasar
-print('finish loading catalogue')
 
-# theta, phi = np.loadtxt('./catalogue/random_sample_theta_phi_5_000_000').T
-# l = phi
-# b = np.pi/2-theta
-# w_l = np.ones_like(l)
-# z_l = np.ones_like(l)*0.55
-# Nquas = len(l)
+w_l = cmass['w']
+z_l = cmass['z']
+
+print('finish loading random sample')
 
 ### ========================================================== ###
-
 
 Npro = 60
 Njack = 100
@@ -154,4 +146,4 @@ assert values.shape==weight.shape==(Nquas, Nbins)
 print('finish calculating')
 print('completeness: {}'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
-np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_tree.npy', (values, weight))
+np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_null_2.npy', (values, weight))
