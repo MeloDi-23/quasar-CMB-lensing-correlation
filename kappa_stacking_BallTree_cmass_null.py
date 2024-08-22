@@ -17,7 +17,7 @@ Null Test: use the shuffled CMB kappa map(generated from read_planck.ipynb)
 
 ### ========================================================== ###
 
-l_k, b_k, kappa = np.load('./catalogue/CMB_shuffle_v2.npy')
+l_k, b_k, kappa = np.load('./catalogue/CMB_noise.npy')
 from sklearn.neighbors import BallTree
 tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
 
@@ -36,7 +36,7 @@ print('finish loading shuffled Planck kappa map.')
 # print('finish loading catalogue')
 
 ### ========================================================== ###
-# random point sample
+
 cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_random.npy')
 
 Nquas = len(cmass)
@@ -146,4 +146,4 @@ assert values.shape==weight.shape==(Nquas, Nbins)
 print('finish calculating')
 print('completeness: {}'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
-np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_null_2.npy', (values, weight))
+np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_noise.npy', (values, weight))
