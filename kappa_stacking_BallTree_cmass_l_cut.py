@@ -18,19 +18,10 @@ Use BallTree to calculate the result, prove to be consistent with hp.query, but 
 ### ========================================================== ###
 
 # load the Planck kappa map
+
 Nside = 1024
-mask = hp.read_map('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/mask/mask.fits')
-dat = hp.read_alm('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/MV/dat_klm.fits')
 
-image = hp.sphtfunc.alm2map(dat, nside=Nside, pol=False)
-mask = hp.ud_grade(mask, Nside)
-image_masked = hp.ma(image)
-image_masked.mask = mask<=0.5
-theta, phi = hp.pix2ang(Nside, np.arange(len(image)))
-l_k = phi[np.logical_not(image_masked.mask)]
-b_k = np.pi/2 - theta[np.logical_not(image_masked.mask)]
-kappa = image[np.logical_not(image_masked.mask)]
-
+l_k, b_k, kappa = np.load('./catalogue/CMB_lcut.npy')
 from sklearn.neighbors import BallTree
 tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
 
@@ -38,7 +29,7 @@ print('finish loading Planck kappa map.')
 
 ### ========================================================== ###
 
-cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_random.npy')
+cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_z_cut.npy')
 Nquas = len(cmass)
 c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
 
@@ -63,11 +54,16 @@ print('finish loading catalogue')
 
 Npro = 60
 Njack = 100
-Nbins = 10
-sep_min = 3
+Nbins = 15
+sep_min = 0.5
 sep_max = 100
-name = 'cmass_random'
+name = 'cmass_real'
 r_bins = np.geomspace(sep_min, sep_max, Nbins+1)        # unit: cMpc/h
+
+
+
+file = f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_cut.npy'
+print('save to', file)
 
 sigma_frac = (const.c*const.c/(4*np.pi*const.G)).to(u.Msun*u.Mpc/u.pc/u.pc).value / h
 z_s = 1100      # redshift of CMB
@@ -154,4 +150,4 @@ assert values.shape==weight.shape==(Nquas, Nbins)
 print('finish calculating')
 print('completeness: {}'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
-np.save(f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_tree.npy', (values, weight))
+np.save(file, (values, weight))

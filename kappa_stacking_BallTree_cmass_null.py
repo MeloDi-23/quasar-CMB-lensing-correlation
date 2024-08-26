@@ -76,7 +76,7 @@ def stack_single_sample(arg):
     w_lp = w_l * Sigma_c^(-2)
     \Sigma_c = c^c/(4\pi G) \chi_s/(\chi_l (\chi_s-\chi_l) (1+z_l))
     """
-    ra, dec = arg[0], arg[1]
+    l, b = arg[0], arg[1]
     w_l = arg[2]
     z_l = arg[3]
     values = np.zeros(Nbins)
@@ -89,7 +89,7 @@ def stack_single_sample(arg):
     # convert from cMpc to theta
 
     for i in range(Nbins):
-        idx_in, idx_out = tree.query_radius([[dec, ra], [dec, ra]], [theta_bins[i], theta_bins[i+1]])
+        idx_in, idx_out = tree.query_radius([[b, l], [b, l]], [theta_bins[i], theta_bins[i+1]])
         idx = np.zeros(len(kappa), bool)
         idx[idx_out] = True
         idx[idx_in] = False
