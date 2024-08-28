@@ -21,7 +21,7 @@ Use BallTree to calculate the result, prove to be consistent with hp.query, but 
 
 Nside = 1024
 
-l_k, b_k, kappa = np.load('./catalogue/CMB_lcut_400.npy')
+l_k, b_k, kappa = np.load('./catalogue/CMB_lcut.npy')
 from sklearn.neighbors import BallTree
 tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
 
@@ -29,40 +29,44 @@ print('finish loading Planck kappa map.')
 
 ### ========================================================== ###
 
-cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/cmass_random.npy')
-Nquas = len(cmass)
-c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
 
-l = c.galactic.l.to(u.rad).value
-b = c.galactic.b.to(u.rad).value
-# position of each quasar
-w_l = cmass['w']
-# weighting of each quasar
-z_l = cmass['z']
-# redshift of each quasar
-print('finish loading catalogue')
+# quasar_cata = fits.getdata('/uufs/chpc.utah.edu/common/home/astro/zheng/hd/data/SDSS16Q/DR16Q_v4.fits')
+# quasar_cata = quasar_cata[quasar_cata['Z'] > 1]
+# quasar_cata = quasar_cata[quasar_cata['Z'] < 3]
 
-# theta, phi = np.loadtxt('./catalogue/random_sample_theta_phi_5_000_000').T
-# l = phi
-# b = np.pi/2-theta
-# w_l = np.ones_like(l)
-# z_l = np.ones_like(l)*0.55
-# Nquas = len(l)
+# Nquas = len(quasar_cata)
+
+# c = coo.SkyCoord(ra=quasar_cata['RA']*u.degree, dec=quasar_cata['DEC']*u.degree)
+
+# l = c.galactic.l.to(u.rad).value
+# b = c.galactic.b.to(u.rad).value
+# w_l = np.ones(Nquas)
+# # weighting of each quasar
+# z_l = quasar_cata['Z']
+# # redshift of each quasar
+# print('finish loading quasar catalogue')
 
 ### ========================================================== ###
 
 
+rand_theta, rand_phi, rand_z = np.load('./catalogue/random_sample_quasar.npy')
+l = rand_phi
+b = np.pi/2 - rand_theta
+z_l = rand_z
+Nquas = len(l)
+w_l = np.ones(Nquas)
+print('finish loading random catalogue')
+
+### ========================================================== ###
+
 Npro = 60
-Njack = 100
 Nbins = 15
-sep_min = 0.5
+sep_min = 3
 sep_max = 100
-name = 'cmass_random'
+name = 'quasar_random'
 r_bins = np.geomspace(sep_min, sep_max, Nbins+1)        # unit: cMpc/h
 
-
-
-file = f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_cut_400.npy'
+file = f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_cut.npy'
 print('save to', file)
 
 sigma_frac = (const.c*const.c/(4*np.pi*const.G)).to(u.Msun*u.Mpc/u.pc/u.pc).value / h

@@ -13,35 +13,31 @@ h = cosmos.H0.to(u.km/u.s/u.Mpc).value / 100
 import argparse
 """
 Use BallTree to calculate the result, prove to be consistent with hp.query, but seems faster.
+Supports command line and parameters.
+Must use the galaxy catalogue of format: .npy, with ra, dec, z, w(weight)
+Must use the kappa map of format: .npy, with l, b, kappa
 """
 ### ========================================================== ###
 parser = argparse.ArgumentParser('kappa stacking (balltree)')
-parser.add_argument('file', help='input file [path relative to ./catalogue]')
-parser.add_argument('--sep_min', '-m', default=3, type=float, help='min seperation [cMpc/h]')
-parser.add_argument('--sep_max', '-M', default=100, type=float, help='max seperation [cMpc/h]')
-parser.add_argument('--nbins', '-n', default=10, type=int, help='number of bins')
-parser.add_argument('--name', help='output name')
+parser.add_argument('file', help='input catalogue file')
+parser.add_argument('CMB_file', help='input CMB kappa map file')
+parser.add_argument('--sep_min', '-m', default=3, help='min seperation [cMpc/h]')
+parser.add_argument('--sep_max', '-M', default=100, help='max seperation [cMpc/h]')
+parser.add_argument('--nbins', '-N', default=10, type=int, help='number of bins')
+parser.add_argument('--name', '-n', help='output name')
+parser.add_argument('--frame', '-f', help='frame of coordinats for catalogue file', default='icrs', choices=['galactic', 'icrs'])
+parser.add_argument('--unit', '-u', help='unit of catalogue file', default='deg')
 arg = parser.parse_args()
 
 if not arg.name:
     import os
     file_name = os.path.split(arg.file)[1]
-    arg.name = os.path.splitext(file_name)[0]
+    arg.name = os.path.splitext(file_name)[0] + '_' + os.path.splitext(os.path.split(arg.CMB_file)[1])[0]
 ### ========================================================== ###
 
 # load the Planck kappa map
-Nside = 1024
-mask = hp.read_map('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/mask/mask.fits')
-dat = hp.read_alm('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/data/Planck/MV/dat_klm.fits')
-
-image = hp.sphtfunc.alm2map(dat, nside=Nside, pol=False)
-mask = hp.ud_grade(mask, Nside)
-image_masked = hp.ma(image)
-image_masked.mask = mask<=0.5
-theta, phi = hp.pix2ang(Nside, np.arange(len(image)))
-l_k = phi[np.logical_not(image_masked.mask)]
-b_k = np.pi/2 - theta[np.logical_not(image_masked.mask)]
-kappa = image[np.logical_not(image_masked.mask)]
+print(f'loading {arg.CMB_file}...')
+l_k, b_k, kappa = np.load(arg.CMB_file)
 
 from sklearn.neighbors import BallTree
 tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
@@ -49,29 +45,32 @@ tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')  
 print('finish loading Planck kappa map.')
 
 ### ========================================================== ###
-
-cmass = np.load('/uufs/astro.utah.edu/common/home/u6060319/quasar-CMBlening/catalogue/'+arg.file)
-Nquas = len(cmass)
-c = coo.SkyCoord(ra=cmass['ra']*u.degree, dec=cmass['dec']*u.degree)
+print(f'loading {arg.file}...')
+catalogue = np.load(arg.file)
+Nquas = len(catalogue)
+c = coo.SkyCoord(l=catalogue['l'], b=catalogue['b'], frame=arg.frame, unit=arg.unit)
 
 l = c.galactic.l.to(u.rad).value
 b = c.galactic.b.to(u.rad).value
 # position of each quasar
-w_l = cmass['w']
+w_l = catalogue['w']
 # weighting of each quasar
-z_l = cmass['z']
+z_l = catalogue['z']
 # redshift of each quasar
-print('finish loading catalogue')
+print('finish loading catalogue.')
 
 ### ========================================================== ###
 
 Npro = 60
 Njack = 100
 Nbins = arg.nbins
-sep_min = arg.sep_min
-sep_max = arg.sep_max
+sep_min = float(arg.sep_min)
+sep_max = float(arg.sep_max)
 name = arg.name
 r_bins = np.geomspace(sep_min, sep_max, Nbins+1)        # unit: cMpc/h
+
+output = f'./calculation_data/result_r={arg.sep_min}_{arg.sep_max}_{Nbins}_{name}_tree.npy'
+print(f'output path {output}')
 
 sigma_frac = (const.c*const.c/(4*np.pi*const.G)).to(u.Msun*u.Mpc/u.pc/u.pc).value / h
 z_s = 1100      # redshift of CMB
@@ -155,10 +154,9 @@ values = np.vstack(tuple(item[0] for item in result))
 weight = np.vstack(tuple(item[1] for item in result))
 assert values.shape==weight.shape==(Nquas, Nbins)
 
-print('finish calculating')
-print('completeness: {}'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
+print('finish calculating.')
+print('completeness: {}.'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
-output = f'./calculation_data/result_r={sep_min}_{sep_max}_{Nbins}_{name}_tree.npy'
 print(f'save to {output}...')
 np.save(output, (values, weight))
 
