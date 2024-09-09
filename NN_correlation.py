@@ -67,7 +67,6 @@ def progress_bar(receiver, Ntot, rate=10):
 receiver, sender = Pipe()
 mypool = Pool(processes=Npro)
 
-
 args = np.deg2rad(np.c_[cata['ra'], cata['dec']])
 assert args.shape == (len(cata), 2)
 

@@ -9,45 +9,55 @@ import argparse
 from sklearn.neighbors import BallTree
 h = cosmos.H0.to(u.km/u.s/u.Mpc).value / 100
 """
-Use BallTree to calculate the result, prove to be consistent with hp.query, but seems faster.
+Use BallTree to calculate the result, consistent with hp.query and faster.
 Supports command line and parameters.
-Must use the galaxy catalogue of format: .npy, with ra, dec(or l, b), z, w(weight)
-Must use the kappa map of format: .npy, with l, b, kappa
+galaxy catalogue of format: .npy, with ra, dec(or l, b), z, w(weight)
+kappa map of format: .npy, with l, b, kappa
 """
-### ========================================================== ###
+# ========================================================== #
 parser = argparse.ArgumentParser('kappa stacking (balltree)')
 parser.add_argument('file', help='input catalogue file')
 parser.add_argument('CMB_file', help='input CMB kappa map file')
-parser.add_argument('--sep_min', '-m', default=3, help='min seperation [cMpc/h]')
-parser.add_argument('--sep_max', '-M', default=100, help='max seperation [cMpc/h]')
-parser.add_argument('--nbins', '-N', default=10, type=int, help='number of bins')
+parser.add_argument('--sep_min', '-m',
+                    default=3, help='min seperation [cMpc/h]')
+parser.add_argument('--sep_max', '-M',
+                    default=100, help='max seperation [cMpc/h]')
+parser.add_argument('--nbins', '-N',
+                    default=10, type=int, help='number of bins')
 parser.add_argument('--name', '-n', help='output name')
-parser.add_argument('--frame', '-f', default='icrs', choices=['galactic', 'icrs'], help='frame of coordinats for catalogue file')
-parser.add_argument('--unit', '-u', default='deg', help='unit of catalogue file')
-parser.add_argument('--process', '-p', default=60, type=int, help='number of process')
+parser.add_argument('--frame', '-f',
+                    default='icrs', choices=['galactic', 'icrs'],
+                    help='frame of coordinats for catalogue file')
+parser.add_argument('--unit', '-u', default='deg',
+                    help='unit of catalogue file')
+parser.add_argument('--process', '-p', default=60,
+                    type=int, help='number of process')
 arg = parser.parse_args()
 
 if not arg.name:
     import os
     file_name = os.path.split(arg.file)[1]
     cmb_file_name = os.path.split(arg.CMB_file)[1]
-    arg.name = f'result_r={arg.sep_min}_{arg.sep_max}_{arg.nbins}_{os.path.splitext(file_name)[0]}_{os.path.splitext(cmb_file_name)[0]}_tree'
-### ========================================================== ###
+    arg.name = f'result_r={arg.sep_min}_{arg.sep_max}_{arg.nbins}_\
+{os.path.splitext(file_name)[0]}_{os.path.splitext(cmb_file_name)[0]}_tree'
 
 # load the Planck kappa map
+# ========================================================== #
 print(f'loading {arg.CMB_file}...')
 l_k, b_k, kappa = np.load(arg.CMB_file)
 
-tree = BallTree(data=np.vstack((b_k, l_k)).T, leaf_size=5, metric='haversine')          # latitude + logtitude
+tree = BallTree(data=np.vstack((b_k, l_k)).T,
+                leaf_size=5, metric='haversine')
+# latitude + logtitude
 
 print('finish loading Planck kappa map.')
 
-### ========================================================== ###
+# ========================================================== #
 print(f'loading {arg.file}...')
 print(f'use frame {arg.frame}, unit {arg.unit}')
 catalogue = np.load(arg.file)
 Nquas = len(catalogue)
-if arg.frame=='icrs':
+if arg.frame == 'icrs':
     c = coo.SkyCoord(ra=catalogue['ra'], dec=catalogue['dec'], frame=arg.frame, unit=arg.unit)
 else:
     c = coo.SkyCoord(l=catalogue['l'], b=catalogue['b'], frame=arg.frame, unit=arg.unit)
@@ -60,7 +70,7 @@ z_l = catalogue['z']
 # redshift of each quasar
 print('finish loading catalogue.')
 
-### ========================================================== ###
+# ========================================================== #
 
 Npro = arg.process
 print(f'use {Npro} process(es).')
@@ -112,7 +122,9 @@ def stack_single_sample(arg):
 
         k = kappa[idx]
 
-        Sigma_c = sigma_frac*chi_s/(chi_l*(chi_s-chi_l)*(1+z_l))*np.ones_like(k)        # unit: M_sun/pc^2 h
+        Sigma_c = \
+            sigma_frac*chi_s/(chi_l*(chi_s-chi_l)*(1+z_l))*np.ones_like(k)
+        # unit: M_sun/pc^2 h
 
         w_lp = w_l/Sigma_c/Sigma_c
 
@@ -121,7 +133,7 @@ def stack_single_sample(arg):
             values[i] = np.nan
         else:
             values[i] = np.sum(w_lp*Sigma_c*k)/weights[i]
-    if not sender is None:
+    if sender is not None:
         sender.send(1)
 
     return values, weights

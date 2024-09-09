@@ -6,3 +6,5 @@ log*
 pid*
 catalogue/*
 results/*
+tmp/*
+*/*.npy
