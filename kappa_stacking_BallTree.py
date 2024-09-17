@@ -4,6 +4,8 @@ import astropy.constants as const
 from multiprocessing import Pool, Pipe, Process
 import tqdm
 from astropy.cosmology import Planck18 as cosmos
+from astropy.cosmology import FlatLambdaCDM
+cosmos = FlatLambdaCDM(Om0=0.4, H0=60)
 import astropy.coordinates as coo
 import argparse
 from sklearn.neighbors import BallTree
@@ -78,15 +80,16 @@ Nbins = arg.nbins
 sep_min = float(arg.sep_min)
 sep_max = float(arg.sep_max)
 r_bins = np.geomspace(sep_min, sep_max, Nbins+1)        # unit: cMpc/h
+rp = (r_bins[1:]*r_bins[:-1])**0.5
 
 output = f'./calculation_data/{arg.name}.npy'
 print(f'output path {output}')
 
 sigma_frac = (const.c*const.c/(4*np.pi*const.G)).to(
-        u.Msun*u.Mpc/u.pc/u.pc).value / h
+        u.Msun*u.Mpc/u.pc/u.pc).value
 z_s = 1100                                              # redshift of CMB
-chi_s = coo.Distance(z=z_s, cosmology=cosmos).to(
-    u.Mpc).value/(1+z_s)                            # comoving distance of CMB
+chi_s = cosmos.comoving_distance(z_s).to(u.Mpc).value*h   # comoving distance of CMB
+# this should be d_A/(1+z), but just the same as comoving distance in the case of flat universe
 
 sender, receiver = Pipe()
 
@@ -106,10 +109,10 @@ def stack_single_sample(arg):
     values = np.zeros(Nbins)
     weights = np.zeros(Nbins)
 
-    d_A = cosmos.angular_diameter_distance(z_l).to(u.Mpc).value
+    d_A = cosmos.angular_diameter_distance(z_l).to(u.Mpc).value*h
     chi_l = d_A*(1+z_l)
 
-    theta_bins = r_bins/h/(1+z_l)/d_A
+    theta_bins = r_bins/(1+z_l)/d_A
     # convert from cMpc to theta
 
     idx_all = tree.query_radius([[dec, ra]]*(Nbins+1), theta_bins)
@@ -121,7 +124,6 @@ def stack_single_sample(arg):
         # select pixels between bin[i] to bin[i+1]
 
         k = kappa[idx]
-
         Sigma_c = \
             sigma_frac*chi_s/(chi_l*(chi_s-chi_l)*(1+z_l))*np.ones_like(k)
         # unit: M_sun/pc^2 h
@@ -176,4 +178,7 @@ print('finish calculating.')
 print('completeness: {}.'.format(1-np.sum(np.isnan(values))/(Nquas*Nbins)))
 
 print(f'save to {output}...')
-np.save(output, (values, weight))
+f = open(output, 'wb')
+np.save(f, rp)
+np.save(f, (values, weight))
+f.close()

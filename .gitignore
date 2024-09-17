@@ -1,10 +1,11 @@
 calculation_data/*
 data/*
 .ipynb_checkpoints/*
-jupyter/.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
 log*
 pid*
 catalogue/*
 results/*
 tmp/*
+*.npy
 */*.npy
