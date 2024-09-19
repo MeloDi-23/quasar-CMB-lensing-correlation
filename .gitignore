@@ -9,3 +9,5 @@ results/*
 tmp/*
 *.npy
 */*.npy
+__pycache__/*
+*/__pycache__/*
