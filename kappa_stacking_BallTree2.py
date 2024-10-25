@@ -114,12 +114,14 @@ def stack_single_sample(arg):
     theta_bins = r_bins/(1+z_l)/d_A
     # convert from cMpc to theta
 
-    idx_all = tree.query_radius([[dec, ra]]*(Nbins+1), theta_bins)
-    for i in range(Nbins):
-        idx = np.setdiff1d(idx_all[i+1], idx_all[i], assume_unique=True)
-        # select pixels between bin[i] to bin[i+1]
+    idx_all, distance = tree.query_radius([[dec, ra]], theta_bins[-1], return_distance=True)
+    kappa_all = kappa[idx_all[0]]
+    distance = distance[0]
 
-        k = kappa[idx]
+    for i in range(Nbins):
+        idx = (distance > theta_bins[i]) & (distance <= theta_bins[i+1])
+        k = kappa_all[idx]
+
         Sigma_c = \
             sigma_frac*chi_s/(chi_l*(chi_s-chi_l)*(1+z_l))*np.ones_like(k)
         # unit: M_sun/pc^2 h

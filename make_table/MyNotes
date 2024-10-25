@@ -1,0 +1,105 @@
+BigMDPL N-body simulation
+h       0.6777  Hubble parameter
+ΩΛ      0.692885        density parameter for dark energy
+Ωm      0.307115        density parameter for matter (dark matter+baryons)
+Ωb      0.048206        density parameter for baryonic matter
+n       0.96    normalization of the Power spectrum
+σ8      0.8228  amplitude of mass density fluctuation in 8 Mpc/h sphere (at redshift z=0)
+Other constants
+G       6.67428 * 10-8 cm3 g-1 s-2      Gravitational constant (Rev. Mod. Phys. 80 (2008) 633-730)
+1 Mpc   30.85677 * 1023 cm      1 Mpc in cm
+Msun    1.98892 ± 0.00025 1033 g        Solar mass (Physics Reports 281 (1997) 309)
+
+
+BigMDPL 0.5% particle file, snapnum=10, z=1.445, a=0.409, snapnum=10
+dm_particles_snap_010.dat
+283086376 lines   (3840^3 * 0.5% = 283115520)
+
+Boxsize = 2.5 Gpc/h = 2500 Mpc/h
+Mass resolution 2.359e10 Msun/h  [one dark matter particle]
+Force resolution 30 kpc/h (high z) - 10 kpc/h (low-z)  physical
+Initial redshift 100
+
+Rockstar halos
+hlist_0.40900.list
+143515843 lines
+
+awk '{printf("%12d %12d %12d %7.5e %10.5f %10.5f %10.5f\n",$2,$6,$7,$11,$18,$19,$20)}' hlist_0.40900.list > haloinfo_0.40900.dat
+
+awk '{printf("%12d %12d %12d %7.5e %10.5f %10.5f %10.5f\n",$2,$6,$7,$11,$18,$19,$20+$23*(1+1.445)/100.0/sqrt(0.307115*(1+1.445)**3+0.692885))}' hlist_0.40900.list > haloinfo_0.40900_zspace.dat
+
+hlist_0.40900.list
+haloinfo_0.40900.dat
+first 63 lines are headers
+143515780 halos/subhalos in total
+
+136876010 eigenvalues_at_halopos_main.dat
+136876009 distinct halos in total
+
+# produce the delta binary file (2048^3) from the particle file
+par2delta 2500 2048 dm_particles_snap_010.dat   (14min)
+ln -s dm_particles_snap_010.dat_delta matter2048.delta
+
+#####################################################
+############## START from here ######################
+##### Makefile has the compilation options ##########
+#####################################################
+
+# smooth the delta field and compute the Hessian matrix elements
+# The example below is Gaussian smoothing radius 5Mpc/h
+# generate 7 files: matter2048.smooth, matter2048.Hdxdy etc
+
+SmoothHessian 5           (~8.5hr)  
+
+# compute the environment at halo postion
+# use all the halos/subhalos (Donnot use these)
+environ_at_halopos        (17min)
+**no need to use*** eigenvalues_at_halopos    (22min)
+
+# use the distinct halos only
+# one outputs real-space positionS (for q-m cross correlation) 
+# one outputs redshift-space positions (for q-q auto correlation)
+eigenvalues_at_halopos_main (20min)         => eigenvalues_at_halopos_main.dat
+eigenvalues_at_halopos_main_zspace (20min)  => eigenvalues_at_halopos_main_zspace.dat
+
+# various codes to select halos according to certain properties
+# redshif-space ones to be moved to Sample_wpqq/ for auto correlation
+# real-space ones to be moved to Sample_wpqm/ for cross-correlations
+# In either directory, run*.sh files are the shell scripts for using 
+# my fastwpz code to compute the auto or cross projected 2PCFs.
+# For auto 2PCFs, running time is very fast, sub-seconds to hundreds of seconds.
+# for cross, the rule of thumb: running time in seconds = 0.01 * number of lines in selected halo position file
+# May reduce the time by further subsampling the DM particles 
+# and / or choose a narrow range in halo mass
+
+# examples of selecting halos
+
+select_halo 11.95 12.05 eigenvalues_at_halopos_main_zspace.dat  => Sample_wpqq
+select_halo 11.95 12.05 eigenvalues_at_halopos_main.dat         => Sample_wpqm
+
+select_halo 12.45 12.55 eigenvalues_at_halopos_main_zspace.dat
+select_halo 12.45 12.55 eigenvalues_at_halopos_main.dat
+
+select_halo 12.95 13.05 eigenvalues_at_halopos_main_zspace.dat 
+select_halo 12.95 13.05 eigenvalues_at_halopos_main.dat
+
+select_halo_lgM eigenvalues_at_halopos_main.dat
+select_halo_lgM eigenvalues_at_halopos_main_zspace.dat
+
+select_halo_delta 11.99 12.01 eigenvalues_at_halopos_main_zspace.dat
+select_halo_delta 11.99 12.01 eigenvalues_at_halopos_main.dat
+
+select_halo_delta 11.45 11.55 eigenvalues_at_halopos_main_zspace.dat
+select_halo_delta 11.49 11.51 eigenvalues_at_halopos_main.dat
+
+select_halo_delta 12.48 12.52 eigenvalues_at_halopos_main_zspace.dat
+
+select_halo_environ 11.99 12.01 eigenvalues_at_halopos_main_zspace.dat
+select_halo_environ 11.99 12.01 eigenvalues_at_halopos_main.dat
+
+select_halo_environ 12.48 12.52 eigenvalues_at_halopos_main_zspace.dat
+select_halo_environ 12.49 12.51 eigenvalues_at_halopos_main.dat
+
+select_halo_environ 11.49 11.51 eigenvalues_at_halopos_main_zspace.dat
+select_halo_environ 11.49 11.51 eigenvalues_at_halopos_main.dat
+

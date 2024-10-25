@@ -1,0 +1,6 @@
+TODO:
+    calculate the signal using different l cuts (e.g. 1024, 512)
+    calculate the small scale auto correlation
+    calculate the other estimators
+        q-k, q-k_r, q_r-k, q_r-k_r.
+        k_r refers to the shuffled kappa map.

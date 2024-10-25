@@ -9,5 +9,9 @@ results/*
 tmp/*
 *.npy
 */*.npy
+*.bin
+*/*.bin
 __pycache__/*
 */__pycache__/*
+fig
+results
