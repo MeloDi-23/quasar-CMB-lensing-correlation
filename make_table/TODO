@@ -1,0 +1,18 @@
+All needed correlation:
+auto correlation:
+    1 halo term:
+        c-s s-s
+    2 halo term:
+        c-c c-s(s-c) s-s
+cross correlation:
+    c-m s-m
+
+
+Now estimate a profile for the halo satellite (calculate the particle within certain radius of halo),
+Shift the halo position to one of the particle's position, this will gives a mocked satellite catalogue.
+With this catalogue, you can get 2 halo term c-s s-c s-s and s-m.
+With a lot of points within the halo, you can get the 1 halo term s-s.
+
+for 2h c-s term, M_i centre and M_i satellite will count into the one halo term. This will result in some problem. This condition should be excluded. 
+
+for 1h term, wp c-s is the projected surface density. wp s-s should be counted and normalized.

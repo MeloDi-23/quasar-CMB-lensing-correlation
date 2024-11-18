@@ -1,0 +1,31 @@
+---   # parameter configure
+lgMmin:
+  free: true          # set to free parameter or not
+  default: 12         # default value, or the initial value
+  prior: [9, 16]      # prior range (optional, default is [-inf +inf])
+sig_lgM:
+  free: true
+  default: 1
+  prior: [0.1, 5]
+lgM0:
+  free: true
+  default: 12
+  prior: [9, 16]
+lgM1p:
+  free: true
+  default: 12
+  prior: [9, 16]
+alpha:
+  free: true
+  default: 1
+  prior: [0.1, 5]
+
+
+
+---   # general configure
+Nwalkers: 40            # number of walkers you use
+Nstep: 10000            # steps to go
+Nburnin: 800            # burnin, only works when numpy_file is configed
+Npro: 40                # process to use
+backend_file: backend   # backend file
+numpy_file: numpy_file  # save to npy

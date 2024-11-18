@@ -1,0 +1,31 @@
+---   # parameter configure
+lgMmin:
+  free: true
+  default: 12
+  prior: [11, 15]
+sig_lgM:
+  free: false
+  default: 0.2
+  prior: [1e-3, 5]
+lgM0:
+  free: false
+  default: 12
+  prior: [11, 16]
+lgM1p:
+  free: false
+  default: 12
+  prior: [10.5, 16]
+alpha:
+  free: false
+  default: 1
+  prior: [0.1, 5]
+
+---   # general configure
+Nwalkers: 40          # walkers you use
+Nstep: 8000          # steps to go
+Nburnin: 800          # burnin
+Npro: 40              # process to use
+backend_file: null # backend file
+numpy_file: np_l
+
+wp_table_path: ../

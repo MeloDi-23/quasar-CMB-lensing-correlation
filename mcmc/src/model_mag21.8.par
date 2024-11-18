@@ -1,0 +1,37 @@
+#
+#    This is the sample file for input parameters of cosmological 
+# model and HOD.
+#    The general format is 
+#
+#           Parameter_Name  Parameter_Value
+#
+#    Anything after a '#' is regarded as a comment. 
+#
+#################################
+### Parameters related to HOD ###
+#################################
+ng_avg      1.248357e-4  # average galaxy number density [h^3/Mpc^3]
+err_ng      0.076779e-4  # uncertainty in number density [h^3/Mpc^3]
+
+#lgMmin      12.762528   # Ncen cutoff mass scale
+#sig_lgM      0.648902   # Ncen transition width 
+#lgM0        12.833437   # Nsat cutoff mass scale
+#lgM1p       13.740667   # Nsat~1 mass scale
+#alpha        1.130430   # Nsat high mass slope
+
+lgMmin      13.500000   # Ncen cutoff mass scale
+sig_lgM      0.500000   # Ncen transition width 
+lgM0        13.500000   # Nsat cutoff mass scale
+lgM1p       14.500000   # Nsat~1 mass scale
+alpha        1.000000   # Nsat high mass slope
+
+#lgMmin      13.100000   # Ncen cutoff mass scale
+#sig_lgM      0.000010   # Ncen transition width 
+#lgM0        19.833437   # Nsat cutoff mass scale
+#lgM1p       19.740667   # Nsat~1 mass scale
+#alpha        1.130430   # Nsat high mass slope
+
+icen        1           # include central galaxy? (1->yes, 0->no)
+
+iFreePar    1 1 1 1 1   # lgMmin sig_lgM lgM0 lgM1p alpha
+                        # (1->free, 0->fixed) 
