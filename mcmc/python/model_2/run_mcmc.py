@@ -147,8 +147,8 @@ parameter_name = [
 
 if __name__ == '__main__':
     wp_table = read_wp('../wp_table')
-    rp, signal = read_signal('../signal_low.npy')
-    cov = read_cov('../cov_low.npy')
+    rp, signal = read_signal('../signal.npy')
+    cov = read_cov('../cov.npy')
     cov_inv = np.linalg.inv(cov)
     logM, Nh = read_halo_mass_function('../halo_mass_function.npy')
     # for better performance I would recommend setting these as global variable

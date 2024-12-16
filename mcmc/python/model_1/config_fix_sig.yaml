@@ -27,5 +27,5 @@ Nwalkers: 40          # walkers you use
 Nstep: 8000          # steps to go
 Nburnin: 800          # burnin
 Npro: 40              # process to use
-backend_file: backend_fix # backend file
+backend_file: backend_fix.bin # backend file
 numpy_file: np_fix
