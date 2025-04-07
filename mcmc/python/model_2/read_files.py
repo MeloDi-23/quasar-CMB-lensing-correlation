@@ -55,21 +55,9 @@ def read_halo_mass_function(file):
     return func['Mass'], func['nh']
 
 from run_mcmc import HODParameter
-def read_config(file_name, parameter: HODParameter):
+def read_config(file_name):
     config: list[dict[str, dict]]
     with open(file_name, 'r') as f:
         config = list(yaml.load_all(f, yaml.FullLoader))
-    for k, v in config[0].items():
-        try:
-            v.setdefault('free', False)
-            if v['free']:
-                parameter.set_free(k)
-            else:
-                parameter.set_fix(k)
-            if 'default' in v:
-                parameter.set_default(k, v['default'])
-            if 'prior' in v:
-                parameter.set_prior(k, *v['prior'])
-        except KeyError as e:
-            print(e)
-    return config[1]
+
+    return HODParameter.from_config(config[0]), config[1]

@@ -1,9 +1,10 @@
 from scipy.special import erf
 import numpy as np
 def N_c(logM, par):
-    return 0.5*(1 + erf((logM - par.lgMmin)/par.sig_lgM))
+    return par.Amp*0.5*(1 + erf((logM - par.lgMmin)/par.sig_lgM))
 
 def N_s_to_N_c(logM, par):
+    # N_s(M) / N_c(M)
     res = np.zeros_like(logM)
     valid = logM >= par.lgM0
     res[valid] = ((10**logM[valid] - 10**par.lgM0)/(10**par.lgM1p))**par.alpha
@@ -41,13 +42,14 @@ def w_p(logM, nh, par, wp_table):
     Nc = N_c(logM, par)
     Ns = Nc * N_s_to_N_c(logM, par)
     ng = np.sum(nh*(Nc + Ns))
+    # expression for auto correlation (g-g)
     w_p_std = w_p_1h(nh, Nc, Ns, ng, wp_table['1h_cs'], wp_table['1h_ss']) + \
         w_p_2h(nh, Nc, Ns, ng, wp_table['2h_cc'], wp_table['2h_cs'], wp_table['2h_ss'])
+    # expression for cross correlation (g-m)
     w_p_m = w_p_matter(nh, Nc, Ns, ng, wp_table['cm'], wp_table['sm'])
-    return np.concatenate((w_p_std, w_p_m))
+    return np.concatenate((w_p_m, w_p_std))
 
 def chi_2(signal, cov_inv, par, wp_table, logM, nh):
-    # the prior is exp(-chi^2/2)
     delta = signal - w_p(logM, nh, par, wp_table)
 
     return np.einsum('i,ij,j', delta, cov_inv, delta)

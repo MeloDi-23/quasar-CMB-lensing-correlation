@@ -25,6 +25,8 @@ $$
 N_c(M) = \frac 12 \left( 1+erf\left(\frac{\log M - \log M_{min}}{\sigma_{\log M}}\right)\right)\\
 N_s(M) = \begin{cases}\left(\frac{M-M_0}{M_1'}\right)^\alpha N_c(M),& M>M_0\\ 0,&M\le M_0\end{cases}\\
 $$
+(There's a simple satellite model: $N_s = N_c f_{sat}$, where the $f_{sat}$ is const)
+
 Therefore, the number density of all galaxies and satellite galaxies are 
 $$
 N_g = \sum_i N_h(M_i) (N_c(M_i) + N_s(M_i))\\

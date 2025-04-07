@@ -21,9 +21,7 @@ logMh_N = int((logMh_M - logMh_m) / logMh_bin)
 bins = np.arange(logMh_N+1) * logMh_bin + logMh_m
 res = np.digitize(np.log10(halos['M_h']), bins)
 
-# sep_min = 0.1
-# sep_max = 100
-# sep_N = 30
+
 sep_min = 3
 sep_max = 100
 sep_N = 15
@@ -50,7 +48,6 @@ for i in tqdm.tqdm(range(1, logMh_N+1)):
         result[(i,j)] = ret
     ret = pair_count(halo1, halo1, 1, nthread, r_pbins, pimax, boxsize)
     result[(i,i)] = ret
-
 
 with open('s_s_pair_count.bin', 'wb') as f:
     pickle.dump(result, f)

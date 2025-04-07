@@ -1,11 +1,10 @@
 from scipy.special import erf
 
 import numpy as np
-def N_c(logM, par):
-    return np.exp(-0.5*((logM - par.lgMmin)/par.sig_lgM)**2)
+def N_c(logM, par):             # All galaxies are within the same mass range
+    return par.Amp*np.exp(-0.5*((logM - par.lgMmin)/par.sig_lgM)**2)
 
 def N_s_to_N_c(logM, par):      # assume no satellites
-    return np.zeros_like(logM)
     res = np.zeros_like(logM)
     valid = logM >= par.lgM0
     res[valid] = ((10**logM[valid] - 10**par.lgM0)/(10**par.lgM1p))**par.alpha
@@ -46,7 +45,7 @@ def w_p(logM, nh, par, wp_table):
     w_p_std = w_p_1h(nh, Nc, Ns, ng, wp_table['1h_cs'], wp_table['1h_ss']) + \
         w_p_2h(nh, Nc, Ns, ng, wp_table['2h_cc'], wp_table['2h_cs'], wp_table['2h_ss'])
     w_p_m = w_p_matter(nh, Nc, Ns, ng, wp_table['cm'], wp_table['sm'])
-    return np.concatenate((w_p_std, w_p_m))
+    return np.concatenate((w_p_m, w_p_std))
 
 def chi_2(signal, cov_inv, par, wp_table, logM, nh):
     # the prior is exp(-chi^2/2)

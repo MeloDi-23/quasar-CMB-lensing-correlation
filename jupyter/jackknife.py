@@ -72,6 +72,8 @@ def progress_bar(Ntotal, receiver, rate=10):
                 break
         pbar.close()
 from itertools import repeat
+
+
 sender, recv = mp.Pipe()
 
 pool = mp.Pool(5)
@@ -81,5 +83,3 @@ bar.start()
 w_arr = np.vstack(list(pool.starmap(resample, zip(pix, repeat(sender)))))
 sender.send(0)
 bar.join()
-
-np.save('auto_corr_jackknife_kmeans_100_w', w_arr)

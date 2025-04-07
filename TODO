@@ -1,6 +1,14 @@
 TODO:
-    calculate the signal using different l cuts (e.g. 1024, 512)
-    calculate the small scale auto correlation
-    calculate the other estimators
-        q-k, q-k_r, q_r-k, q_r-k_r.
-        k_r refers to the shuffled kappa map.
+
+- calculate high L auto corr, low L auto corr (already done), and high-low cross corr. if there is no systematic they should follow
+
+$$
+    wp_{cross} = \sqrt{wp_{high} wp_{low}}
+$$
+
+- calculate the Nq to constrain Amp of our HOD.
+$$
+    n_q = \frac{N_q}{V}; V = \frac{1}{3}\Omega (\chi_2^2 - \chi_1^2)
+    n_q = \int A f(m) \frac{dn_h}{dm}dm
+$$
+and sigma(n_q) can be estimated using jackknife. it can also be added to covariance matrix.

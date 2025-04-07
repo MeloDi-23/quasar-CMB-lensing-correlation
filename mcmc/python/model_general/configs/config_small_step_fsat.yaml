@@ -1,0 +1,32 @@
+---   # parameter configure
+lgMmin:
+  free: true
+  default: 14
+  prior: [10, 17]
+sig_lgM:
+  free: true
+  default: 1
+  prior: [1e-3, 3]
+Amp:
+  free: false
+  default: 0.7
+  prior: [0, 1]
+
+fsat:
+  free: true
+  default: 0.3
+  prior: [0, 1]
+
+---   # general configure
+Nwalkers: 40          # walkers you use
+Nstep: 8000           # steps to go
+Nburnin: 800          # burnin
+Npro: 40              # process to use
+
+# auto_range: [0, 25]   # range for fitting auto corr. the default is the whole range.
+# cross_range: [0, 13]  # range for fitting cross corr. the default is the whole range.
+backend_file: result/backend_step_fsat.bin # backend file
+numpy_file: result/np_step_fsat
+wp_table_path: ../wp_table_small
+signal_path: ../signal_small
+module_path: ./HOD/calc_wp_step_fsat.py

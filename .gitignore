@@ -11,7 +11,7 @@ tmp/*
 */*.npy
 *.bin
 */*.bin
-__pycache__/*
-*/__pycache__/*
+__pycache__/
 fig
 results
+.vscode
