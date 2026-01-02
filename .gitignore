@@ -3,6 +3,7 @@ data/*
 .ipynb_checkpoints/*
 */.ipynb_checkpoints/*
 log*
+*.log
 pid*
 catalogue/*
 results/*

@@ -23,7 +23,7 @@ def N_g_sat(logM, nh, par):
 
 def w_p_1h(nh, Nc, Ns, ng, wp_cs, wp_ss):
     cs = np.einsum('i,ij', nh/(ng*ng)*Nc*Ns, wp_cs)
-    ss = np.einsum('i,ij', nh/(ng*ng)*Ns*(Ns-1), wp_ss)
+    ss = np.einsum('i,ij', nh/(ng*ng)*Ns*Ns, wp_ss)
     return cs*2 + ss
 
 def w_p_2h(nh, Nc, Ns, ng, wp_cc, wp_cs, wp_ss):

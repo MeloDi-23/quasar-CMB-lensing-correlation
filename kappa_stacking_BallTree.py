@@ -3,9 +3,9 @@ import astropy.units as u
 import astropy.constants as const
 from multiprocessing import Pool, Pipe, Process
 import tqdm
-from astropy.cosmology import Planck18 as cosmos
+# from astropy.cosmology import Planck18 as cosmos
 from astropy.cosmology import FlatLambdaCDM
-cosmos = FlatLambdaCDM(Om0=0.4, H0=60)
+cosmos = FlatLambdaCDM(H0=67.77, Om0=0.307115, Ob0=0.048206, Tcmb0=2.7255)
 import astropy.coordinates as coo
 import argparse
 from sklearn.neighbors import BallTree

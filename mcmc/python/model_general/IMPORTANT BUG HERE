@@ -1,0 +1,8 @@
+There is an important bug in this code: for wp_1h_ss, the correct line is <Ns(Ns-1)> = <Ns>^2
+
+- wrong: ss1h = np.einsum('i,ij', nh/(ng*ng)*Ns*(Ns-1), wp_table_auto['1h_ss'])
+- correct: ss1h = np.einsum('i,ij', nh/(ng*ng)*Ns*Ns, wp_table_auto['1h_ss'])
+
+so the result might change a little due to this bug (but since the Ns is quite small, there will be no significant change in constraints.)
+
+Date of discovering: 10.23

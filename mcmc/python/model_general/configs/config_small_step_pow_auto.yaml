@@ -5,11 +5,11 @@ lgMmin:
   prior: [10, 17]
 sig_lgM:
   free: true
-  default: 1
-  prior: [1e-3, 3]
+  default: 0.5
+  prior: [1e-3, 1]
 Amp:
   free: false
-  default: 0.7
+  default: 1
   prior: [0, 1]
 
 lgM0:
@@ -23,16 +23,16 @@ lgM1p:
 alpha:
   free: true
   default: 1
-  prior: [0.1, 5]
+  prior: [0, 5]
 
 ---   # general configure
 Nwalkers: 40          # walkers you use
 Nstep: 8000           # steps to go
-Nburnin: 800          # burnin
+Nburnin: 1000          # burnin
 Npro: 40              # process to use
 
-# auto_range: [0, 25]   # range for fitting auto corr. the default is the whole range.
-cross_range: [0, 0]  # range for fitting cross corr. the default is the whole range.
+auto_range: [0, 22]   # apply a cut.
+cross_range: [0, 0]   # no cross correlation used.
 backend_file: result/backend_step_pow_auto.bin # backend file
 numpy_file: result/np_step_pow_auto
 wp_table_path: ../wp_table_small

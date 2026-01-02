@@ -33,5 +33,5 @@ for i in tqdm.trange(len(displacement)):
     counts.append(D1D2)
 
 import pickle
-with open('1h_ss_count.bin', 'wb') as f:
+with open('bin/1h_ss_count.bin', 'wb') as f:
     pickle.dump(counts, f)

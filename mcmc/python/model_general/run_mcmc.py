@@ -153,12 +153,15 @@ class HODParameter:
         full_para = self.full_parameters(parameters)
         prior = self.ln_prior(full_para)
         if np.isneginf(prior):
+            if blob_dtype:
+                return (prior, *(len(blob_dtype)*[None]))
             return prior
-        
         chi2 = chi_2(signal, cov_inv, full_para, wp_table_auto, wp_table_cross, logM, Nh)/2      # use global variables for better performance.
         if np.isnan(chi2).any():
             np.savetxt('para', full_para)
             raise Exception('chi^2 = nan.')
+        if duty_cycle_fn:
+            return (prior - chi2, *duty_cycle_fn(signal, cov_inv, full_para, wp_table_auto, wp_table_cross, logM, Nh))
         return prior - chi2
 
 if __name__ == '__main__':
@@ -173,7 +176,7 @@ if __name__ == '__main__':
         par_configs, other_configs = list(yaml.load_all(f, yaml.FullLoader))
     # ========== reading configs ==========
     # don't set the lgMmin too large or sig_lgM too small, otherwise N_c will be all zeros
-    available_fields = ['Nwalkers', 'Nstep', 'Nburnin', 'Npro', 'auto_range', 'cross_range',
+    available_fields = ['Nwalkers', 'Nstep', 'Nburnin', 'Npro', 'auto_range', 'cross_range', 'duty_cycle',
                         'backend_file', 'numpy_file', 'wp_table_path', 'signal_path', 'module_path']
     Nwalkers = 40
     Nstep = 4000
@@ -186,6 +189,7 @@ if __name__ == '__main__':
     wp_table_path = '../wp_table'
     signal_path = '../signal'
     module_path = './HOD/calc_wp.py'
+    duty_cycle = None
 
     for k in available_fields:
         if k in other_configs:
@@ -198,6 +202,10 @@ if __name__ == '__main__':
     module = read_module(module_path)
     chi_2 = module.chi_2
     N_c = module.N_c
+    try:
+        duty_cycle_fn = module.duty_cycle       # make sure the function return value corresponds to the dtype!
+    except AttributeError:
+        duty_cycle_fn = None
     # for better performance I would recommend setting these as global variable
     # ========== apply the fitting range ==========
 
@@ -230,6 +238,14 @@ if __name__ == '__main__':
 
     parameter = HODParameter.from_config(par_configs)
     print(parameter)
+    if duty_cycle:
+        blob_dtype = [
+            (str(n), float) for n in duty_cycle
+        ]
+        print(blob_dtype)
+    else:
+        blob_dtype = None
+
     Ndim = parameter.ndim
 
     init_state = parameter.initial_parameter(Nwalkers)
@@ -238,7 +254,7 @@ if __name__ == '__main__':
 
     if backend_file:
         if os.path.exists(backend_file):
-            res = input(f'Warning: file {backend_file} already exists. Overwrite it?[y/n]')
+            res = input(f'Warning: file {backend_file} already exists. Overwrite it?[y/n] ')
             if res not in ['y', 'Y', 'yes', 'Yes']:
                 print('Exiting')
                 sys.exit(1)
@@ -247,8 +263,8 @@ if __name__ == '__main__':
         print(f'backend save to {backend_file}.')
     else:
         backend = None
-
-    sampler = EnsembleSampler(Nwalkers, Ndim, log_prob_fn, pool=pool, backend=backend)
+    
+    sampler = EnsembleSampler(Nwalkers, Ndim, log_prob_fn, pool=pool, backend=backend, blobs_dtype=blob_dtype)
 
     sampler.run_mcmc(init_state, nsteps=Nstep, progress=True)
 

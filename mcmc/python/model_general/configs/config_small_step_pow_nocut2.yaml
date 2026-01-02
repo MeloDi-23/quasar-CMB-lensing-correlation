@@ -1,0 +1,41 @@
+---   # parameter configure
+lgMmin:
+  free: true
+  default: 14
+  prior: [10, 17]
+sig_lgM:
+  free: true
+  default: 0.5
+  prior: [1e-3, 1]
+Amp:
+  free: false
+  default: 1
+  prior: [0, 1]
+
+lgM0:
+  free: true
+  default: 12
+  prior: [11, 16]
+lgM1p:
+  free: true
+  default: 12
+  prior: [10.5, 16]
+alpha:
+  free: true
+  default: 1
+  prior: [0, 5]
+
+---   # general configure
+Nwalkers: 50          # walkers you use
+Nstep: 30000           # steps to go
+Nburnin: 2000          # burnin
+Npro: 50              # process to use
+duty_cycle: [fsat, amp]
+
+# auto_range: [0, 25]   # range for fitting auto corr. the default is the whole range.
+# cross_range: [0, 13]  # range for fitting cross corr. the default is the whole range.
+backend_file: result/backend_step_pow2.bin # backend file
+numpy_file: result/np_step_pow2
+wp_table_path: ../wp_table_small
+signal_path: ../signal_small
+module_path: ./HOD/calc_wp_step_power_duty.py

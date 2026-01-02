@@ -31,7 +31,7 @@ Nstep: 8000           # steps to go
 Nburnin: 800          # burnin
 Npro: 40              # process to use
 
-# auto_range: [0, 25]   # range for fitting auto corr. the default is the whole range.
+auto_range: [0, 22]   # apply a cut.
 cross_range: [0, 0]  # range for fitting cross corr. the default is the whole range.
 backend_file: result/backend_gaus_pow_auto.bin # backend file
 numpy_file: result/np_gaus_pow_auto

@@ -1,0 +1,19 @@
+---   # parameter configure
+lgM0:
+  free: true
+  default: 14
+  prior: [10, 17]
+
+---   # general configure
+Nwalkers: 40          # walkers you use
+Nstep: 8000           # steps to go
+Nburnin: 1000          # burnin
+Npro: 40              # process to use
+
+auto_range: [6, 23]   # range for fitting auto corr. the default is the whole range.
+cross_range: [0, 13]  # range for fitting cross corr. the default is the whole range.
+# backend_file: result/backend_delta.bin # backend file
+numpy_file: result/np_delta_z2
+wp_table_path: ../wp_table
+signal_path: ../signal_z2
+module_path: ./HOD/calc_wp_delta.py

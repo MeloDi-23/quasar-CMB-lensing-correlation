@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from data_process import jackknife_label
 import astropy.units as u
-from astropy.cosmology import Planck18 as cosmos
+from astropy.cosmology import FlatLambdaCDM
+cosmos = FlatLambdaCDM(H0=67.77, Om0=0.307115, Ob0=0.048206, Tcmb0=2.7255)
 import astropy.coordinates as coo
 h = cosmos.H0.value/100
 
@@ -20,7 +21,12 @@ if len(sys.argv) < 3:
 file_data = sys.argv[1]
 file_random = sys.argv[2]
 data_name = os.path.splitext(os.path.split(file_data)[1])[0]
+
+print(data_name)
+# sys.exit(0)
+
 file_save = os.path.join('./auto_correlation', data_name+'_auto.npy')
+print(f'save to {file_save}')
 
 Nbins = 15
 rp_min = 3
@@ -46,11 +52,6 @@ Nd = len(quasar_cata)
 Nr = len(random_sample)
 dis_cov_q = cosmos.angular_diameter_distance(quasar_cata['z']).to(u.Mpc).value*(1+quasar_cata['z'])*h
 dis_cov_r = cosmos.angular_diameter_distance(random_sample['z']).to(u.Mpc).value*(1+random_sample['z'])*h
-
-z = 1.69
-h = cosmos.H0.to(u.km/u.s/u.Mpc).value / 100
-d_A = cosmos.angular_diameter_distance(z).to(u.Mpc).value
-chi_l = d_A*(1+z)
 
 pimax = 100
 
