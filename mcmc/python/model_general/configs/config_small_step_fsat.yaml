@@ -12,7 +12,7 @@ Amp:
   default: 0.7
   prior: [0, 1]
 
-fsat:
+fsat:                   # N_sat = N_cen * fsat
   free: true
   default: 0.3
   prior: [0, 1]
