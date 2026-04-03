@@ -44,9 +44,13 @@ def w_p(logM, nh, par, wp_table_auto, wp_table_cross):
     ng = np.sum(nh*(Nc + Ns))
     wp1h = w_p_1h(nh, Nc, Ns, ng, wp_table_auto['1h_cs'], wp_table_auto['1h_ss'])
     wp2h = w_p_2h(nh, Nc, Ns, ng, wp_table_auto['2h_cc'], wp_table_auto['2h_cs'], wp_table_auto['2h_ss'])
-    w_p_std = wp1h + wp2h
+    w_p_auto = wp1h + wp2h
     w_p_m = w_p_matter(nh, Nc, Ns, ng, wp_table_cross['cm'], wp_table_cross['sm'])
-    return np.concatenate((w_p_m, w_p_std))
+    return np.concatenate((w_p_m, w_p_auto))
+
+
+
+
 
 def chi_2(signal, cov_inv, par, wp_table_auto, wp_table_cross, logM, nh):
     # the prior is exp(-chi^2/2)
@@ -54,6 +58,10 @@ def chi_2(signal, cov_inv, par, wp_table_auto, wp_table_cross, logM, nh):
     np.nan_to_num(delta, copy=False)        # handle the nan.
 
     return np.einsum('i,ij,j', delta, cov_inv, delta)
+
+
+
+
 
 def duty_cycle(signal, cov_inv, par, wp_table_auto, wp_table_cross, logM, nh):
     Nc = N_c(logM, par)

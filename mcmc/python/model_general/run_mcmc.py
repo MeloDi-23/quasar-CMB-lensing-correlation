@@ -229,7 +229,7 @@ if __name__ == '__main__':
             np.hstack((cov[cross_size+l_a:cross_size+r_a, l_c:r_c], cov[cross_size+l_a:cross_size+r_a, cross_size+l_a:cross_size+r_a]))
         ))
 
-    signal = np.hstack((signal_cross, signal_auto))
+    signal = np.hstack((signal_cross, signal_auto))     # TODO: check this
     cov_inv = np.linalg.inv(cov)
 
     # ========== handle interpolating table ==========

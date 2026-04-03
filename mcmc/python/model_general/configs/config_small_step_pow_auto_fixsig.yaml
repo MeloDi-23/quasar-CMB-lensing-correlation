@@ -4,8 +4,8 @@ lgMmin:
   default: 14
   prior: [10, 17]
 sig_lgM:
-  free: true
-  default: 0.5
+  free: false
+  default: 0.1
   prior: [1e-3, 1]
 Amp:
   free: false
@@ -34,8 +34,8 @@ duty_cycle: [fsat, amp]
 
 auto_range: [0, 22]   # apply a cut.
 cross_range: [0, 0]   # no cross correlation used.
-backend_file: result/backend_step_pow_auto.bin # backend file
-numpy_file: result/np_step_pow_auto
+backend_file: result/backend_step_pow_auto_t1.bin # backend file
+numpy_file: result/np_step_pow_auto_t1
 wp_table_path: ../wp_table_small
 signal_path: ../signal_small
 module_path: ./HOD/calc_wp_step_power_duty.py
